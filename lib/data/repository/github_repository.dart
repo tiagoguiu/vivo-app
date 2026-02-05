@@ -14,7 +14,9 @@ class _GitHubRepository implements GitHubRepository {
       final cache = await localDataSource.getCache(query.cacheKey);
       if (cache != null) {
         if (isFirstPage) {
-          await localDataSource.saveHistory(GitHubSearchHistoryDataModel(query: query, searchedAt: DateTime.now()));
+          await localDataSource.saveHistory(
+            GitHubSearchHistoryDataModel(type: GitHubHistoryType.search, query: query, searchedAt: DateTime.now()),
+          );
         }
         return cache.users;
       }
@@ -25,7 +27,9 @@ class _GitHubRepository implements GitHubRepository {
       GitHubSearchCacheDataModel(cacheKey: query.cacheKey, cachedAt: DateTime.now(), users: users),
     );
     if (isFirstPage) {
-      await localDataSource.saveHistory(GitHubSearchHistoryDataModel(query: query, searchedAt: DateTime.now()));
+      await localDataSource.saveHistory(
+        GitHubSearchHistoryDataModel(type: GitHubHistoryType.search, query: query, searchedAt: DateTime.now()),
+      );
     }
     return users;
   }
@@ -35,6 +39,18 @@ class _GitHubRepository implements GitHubRepository {
 
   @override
   Future<void> clearSearchHistory() => localDataSource.clearHistory();
+
+  @override
+  Future<void> saveProfileHistory(String login, {String? name}) async {
+    await localDataSource.saveHistory(
+      GitHubSearchHistoryDataModel(
+        type: GitHubHistoryType.profile,
+        profileLogin: login,
+        profileName: name,
+        searchedAt: DateTime.now(),
+      ),
+    );
+  }
 
   @override
   Future<GitHubUserDataModel> getUser(String login) => remoteDataSource.fetchUser(login);

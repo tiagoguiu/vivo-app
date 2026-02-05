@@ -28,27 +28,40 @@ class GitHubHistoryPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(20),
                   itemBuilder: (context, index) {
                     final entry = history[index];
-                    final label = entry.filters.username;
-                    final subtitle = entry.filters.location ?? 'Sem localizacao';
+                    final label = entry.type == GitHubHistoryType.profile
+                        ? (entry.profileName ?? entry.profileLogin ?? 'Perfil')
+                        : (entry.filters?.username ?? 'Busca');
+                    final subtitle = entry.type == GitHubHistoryType.profile
+                        ? 'Perfil salvo'
+                        : (entry.filters?.location ?? 'Sem localizacao');
                     final date = DateFormat('dd/MM/yyyy HH:mm').format(entry.searchedAt.toLocal());
                     return ListTile(
                       title: Text(label),
                       subtitle: Text('$subtitle · $date'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.refresh),
-                        tooltip: 'Repetir busca',
-                        onPressed: () {
-                          ref.read(gitHubSearchFiltersProvider.notifier).applyHistory(entry);
-                          ref.read(gitHubSearchProvider.notifier).search();
-                          AppRouter.go(context, RouterNames.githubSearchPage);
-                        },
-                      ),
+                      trailing: entry.type == GitHubHistoryType.search
+                          ? IconButton(
+                              icon: const Icon(Icons.refresh),
+                              tooltip: 'Repetir busca',
+                              onPressed: () {
+                                ref.read(gitHubSearchFiltersProvider.notifier).applyHistory(entry);
+                                ref.read(gitHubSearchProvider.notifier).search();
+                                AppRouter.go(context, RouterNames.githubSearchPage);
+                              },
+                            )
+                          : null,
                       onTap: () {
-                        AppRouter.go(
-                          context,
-                          RouterNames.githubUserDetailsPage,
-                          pathParameters: {'login': entry.filters.username},
-                        );
+                        if (entry.type == GitHubHistoryType.profile) {
+                          final login = entry.profileLogin;
+                          if (login == null || login.isEmpty) {
+                            return;
+                          }
+                          AppRouter.go(context, RouterNames.githubUserDetailsPage, pathParameters: {'login': login});
+                          return;
+                        }
+
+                        ref.read(gitHubSearchFiltersProvider.notifier).applyHistory(entry);
+                        ref.read(gitHubSearchProvider.notifier).search();
+                        AppRouter.go(context, RouterNames.githubSearchPage);
                       },
                     );
                   },

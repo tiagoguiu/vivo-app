@@ -183,7 +183,7 @@ class GitHubLocalDataSource {
   /// Persist a history entry and keep recent items.
   Future<void> saveHistory(GitHubSearchHistoryDataModel history) async {
     final current = await getHistory();
-    final filtered = current.where((item) => item.query.cacheKey != history.query.cacheKey).toList();
+    final filtered = current.where((item) => item.uniqueKey != history.uniqueKey).toList();
     filtered.insert(0, history);
     if (filtered.length > 20) {
       filtered.removeRange(20, filtered.length);

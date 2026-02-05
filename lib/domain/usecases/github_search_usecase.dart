@@ -13,6 +13,8 @@ abstract interface class GitHubSearchUseCase {
 
   Future<void> clearSearchHistory();
 
+  Future<void> saveProfileHistory(String login, {String? name});
+
   Future<GitHubUserEntity> getUser(String login);
 
   Future<List<GitHubRepoCommitEntity>> getRecentRepoCommits(String username, {int count = 12});
@@ -44,6 +46,9 @@ class _GitHubSearchUseCase implements GitHubSearchUseCase {
 
   @override
   Future<void> clearSearchHistory() => _repository.clearSearchHistory();
+
+  @override
+  Future<void> saveProfileHistory(String login, {String? name}) => _repository.saveProfileHistory(login, name: name);
 
   @override
   Future<GitHubUserEntity> getUser(String login) async {

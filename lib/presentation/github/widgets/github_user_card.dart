@@ -100,6 +100,8 @@ class GitHubUserCard extends ConsumerWidget {
   }
 
   Future<void> _showCommits(BuildContext context, WidgetRef ref) async {
+    await ref.read(gitHubSearchUseCaseProvider).saveProfileHistory(user.login, name: user.name ?? user.login);
+    ref.invalidate(gitHubHistoryProvider);
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,

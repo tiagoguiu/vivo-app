@@ -81,12 +81,16 @@ class GitHubSearchFiltersNotifier extends Notifier<GitHubSearchFilters> {
   }
 
   void applyHistory(GitHubSearchHistoryEntity history) {
+    final filters = history.filters;
+    if (filters == null) {
+      return;
+    }
     state = GitHubSearchFilters(
-      username: history.filters.username,
-      location: history.filters.location,
-      language: history.filters.language,
-      minFollowers: history.filters.minFollowers,
-      minRepos: history.filters.minRepos,
+      username: filters.username,
+      location: filters.location,
+      language: filters.language,
+      minFollowers: filters.minFollowers,
+      minRepos: filters.minRepos,
     );
   }
 

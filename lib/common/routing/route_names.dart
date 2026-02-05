@@ -1,1 +1,1 @@
-enum RouterNames { githubSearchPage, githubHistoryPage }
+enum RouterNames { githubSearchPage, githubHistoryPage, githubUserDetailsPage }

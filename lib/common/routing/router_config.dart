@@ -21,6 +21,14 @@ final routerConfig = Provider<GoRouter>((ref) {
             name: RouterNames.githubHistoryPage.name,
             builder: (context, state) => const GitHubHistoryPage(),
           ),
+          GoRoute(
+            path: 'user/:login',
+            name: RouterNames.githubUserDetailsPage.name,
+            builder: (context, state) {
+              final login = state.pathParameters['login'] ?? '';
+              return GitHubUserDetailsPage(login: login);
+            },
+          ),
         ],
       ),
     ],

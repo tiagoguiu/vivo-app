@@ -18,7 +18,7 @@ class GitHubUserDetailsPage extends ConsumerWidget {
         child: userAsync.when(
           data: (user) => _ProfileContent(user: user),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) => const _ProfileErrorState(),
+          error: (_, _) => const _ProfileErrorState(),
         ),
       ),
     );

@@ -16,12 +16,14 @@ class GitHubSearchFiltersEntity {
   final int? minFollowers;
   final int? minRepos;
 
-  GitHubSearchQueryDataModel toDataModel() => GitHubSearchQueryDataModel(
+  GitHubSearchQueryDataModel toDataModel({int page = 1, int perPage = 20}) => GitHubSearchQueryDataModel(
     username: username,
     location: location,
     language: language,
     minFollowers: minFollowers,
     minRepos: minRepos,
+    page: page,
+    perPage: perPage,
   );
 
   factory GitHubSearchFiltersEntity.fromDataModel(GitHubSearchQueryDataModel dataModel) => GitHubSearchFiltersEntity(

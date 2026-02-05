@@ -2,10 +2,15 @@ import '../../exports.dart';
 
 /// Use case for GitHub user search and history.
 abstract interface class GitHubSearchUseCase {
-  Future<List<GitHubUserEntity>> searchUsers(GitHubSearchFiltersEntity filters, {bool forceRefresh = false});
+  Future<List<GitHubUserEntity>> searchUsers(
+    GitHubSearchFiltersEntity filters, {
+    int page = 1,
+    int perPage = 20,
+    bool forceRefresh = false,
+  });
 
   Future<List<GitHubSearchHistoryEntity>> getSearchHistory();
- 
+
   Future<void> clearSearchHistory();
 
   Future<GitHubUserEntity> getUser(String login);
@@ -20,8 +25,13 @@ class _GitHubSearchUseCase implements GitHubSearchUseCase {
   final GitHubRepository _repository;
 
   @override
-  Future<List<GitHubUserEntity>> searchUsers(GitHubSearchFiltersEntity filters, {bool forceRefresh = false}) async {
-    final dataModel = filters.toDataModel();
+  Future<List<GitHubUserEntity>> searchUsers(
+    GitHubSearchFiltersEntity filters, {
+    int page = 1,
+    int perPage = 20,
+    bool forceRefresh = false,
+  }) async {
+    final dataModel = filters.toDataModel(page: page, perPage: perPage);
     final results = await _repository.searchUsers(dataModel, forceRefresh: forceRefresh);
     return results.map(GitHubUserEntity.fromDataModel).toList();
   }

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
@@ -156,7 +158,13 @@ class _GitHubCommitsSheet extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             commitsAsync.when(
-              data: (items) => items.isEmpty ? const _EmptyCommitsState() : _CommitsChart(items: items),
+              data: (items) {
+                final hasActivity = items.any((item) => item.commitCount > 0);
+                if (items.isEmpty || !hasActivity) {
+                  return const _EmptyCommitsState();
+                }
+                return _CommitsChart(items: items);
+              },
               loading: () => const Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()),
               error: (_, _) => const _ErrorCommitsState(),
             ),
@@ -178,51 +186,91 @@ class _CommitsChart extends StatelessWidget {
     final maxValue = items
         .map((item) => item.commitCount)
         .fold<int>(0, (value, element) => value > element ? value : element);
+    final interval = maxValue <= 5 ? 1.0 : (maxValue / 3).ceilToDouble();
+    final chartWidth = math.max(320.0, items.length * 56.0);
 
     return SizedBox(
-      height: 220,
-      child: BarChart(
-        BarChartData(
-          alignment: BarChartAlignment.spaceAround,
-          maxY: (maxValue == 0 ? 1 : maxValue).toDouble(),
-          gridData: const FlGridData(show: false),
-          borderData: FlBorderData(show: false),
-          titlesData: FlTitlesData(
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  final index = value.toInt();
-                  if (index < 0 || index >= items.length) {
-                    return const SizedBox.shrink();
-                  }
-                  final name = items[index].repoName;
-                  return SizedBox(
-                    width: 32,
-                    child: Text(name, style: theme.textTheme.labelSmall, overflow: TextOverflow.ellipsis),
-                  );
-                },
+      height: 240,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: chartWidth,
+          child: BarChart(
+            BarChartData(
+              alignment: BarChartAlignment.spaceBetween,
+              maxY: (maxValue == 0 ? 1 : maxValue).toDouble(),
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: false,
+                horizontalInterval: interval,
+                getDrawingHorizontalLine: (value) => FlLine(color: theme.colorScheme.outlineVariant, strokeWidth: 1),
               ),
+              borderData: FlBorderData(show: false),
+              barTouchData: BarTouchData(
+                enabled: true,
+                touchTooltipData: BarTouchTooltipData(
+                  tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    final item = items[group.x.toInt()];
+                    return BarTooltipItem(
+                      '${item.repoName}\n',
+                      theme.textTheme.labelMedium ?? const TextStyle(),
+                      children: [TextSpan(text: '${item.commitCount} commits', style: theme.textTheme.labelSmall)],
+                    );
+                  },
+                ),
+              ),
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: interval,
+                    reservedSize: 36,
+                    getTitlesWidget: (value, meta) => Text(value.toInt().toString(), style: theme.textTheme.labelSmall),
+                  ),
+                ),
+                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 32,
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
+                      if (index < 0 || index >= items.length) {
+                        return const SizedBox.shrink();
+                      }
+                      final name = items[index].repoName;
+                      return SizedBox(
+                        width: 52,
+                        child: Text(
+                          name,
+                          style: theme.textTheme.labelSmall,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              barGroups: items.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                return BarChartGroupData(
+                  x: index,
+                  barRods: [
+                    BarChartRodData(
+                      toY: item.commitCount.toDouble(),
+                      color: theme.colorScheme.primary,
+                      width: 20,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ],
+                );
+              }).toList(),
             ),
           ),
-          barGroups: items.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            return BarChartGroupData(
-              x: index,
-              barRods: [
-                BarChartRodData(
-                  toY: item.commitCount.toDouble(),
-                  color: theme.colorScheme.primary,
-                  width: 18,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ],
-            );
-          }).toList(),
         ),
       ),
     );
@@ -234,7 +282,7 @@ class _EmptyCommitsState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      const Padding(padding: EdgeInsets.all(24), child: Text('Sem dados de commits para este usuario.'));
+      const Padding(padding: EdgeInsets.all(24), child: Text('Sem atividade de commits recente para este usuario.'));
 }
 
 class _ErrorCommitsState extends StatelessWidget {

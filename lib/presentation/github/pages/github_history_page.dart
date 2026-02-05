@@ -52,11 +52,11 @@ class GitHubHistoryPage extends ConsumerWidget {
                       },
                     );
                   },
-                  separatorBuilder: (_, __) => const Divider(),
+                  separatorBuilder: (_, _) => const Divider(),
                   itemCount: history.length,
                 ),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) => const _ErrorHistoryState(),
+          error: (_, _) => const _ErrorHistoryState(),
         ),
       ),
     );

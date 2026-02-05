@@ -1,8 +1,8 @@
 import '../../exports.dart';
 
 /// Repository that combines GitHub remote and local data sources.
-class _GitHubRepository implements GitHubRepository {
-  const _GitHubRepository({required this.remoteDataSource, required this.localDataSource});
+class GitHubRepositoryImpl implements GitHubRepository {
+  const GitHubRepositoryImpl({required this.remoteDataSource, required this.localDataSource});
 
   final GitHubRemoteDataSource remoteDataSource;
   final GitHubLocalDataSource localDataSource;
@@ -70,7 +70,7 @@ class _GitHubRepository implements GitHubRepository {
 
 /// Provider for the GitHub repository.
 final gitHubRepositoryProvider = Provider<GitHubRepository>(
-  (ref) => _GitHubRepository(
+  (ref) => GitHubRepositoryImpl(
     remoteDataSource: ref.watch(gitHubRemoteDataSourceProvider),
     localDataSource: ref.watch(gitHubLocalDataSourceProvider),
   ),

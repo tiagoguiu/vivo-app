@@ -21,8 +21,8 @@ abstract interface class GitHubSearchUseCase {
 }
 
 /// Default implementation for GitHub search use case.
-class _GitHubSearchUseCase implements GitHubSearchUseCase {
-  const _GitHubSearchUseCase(this._repository);
+class GitHubSearchUseCaseImpl implements GitHubSearchUseCase {
+  const GitHubSearchUseCaseImpl(this._repository);
 
   final GitHubRepository _repository;
 
@@ -65,5 +65,5 @@ class _GitHubSearchUseCase implements GitHubSearchUseCase {
 
 /// Provider for the GitHub search use case.
 final gitHubSearchUseCaseProvider = Provider<GitHubSearchUseCase>(
-  (ref) => _GitHubSearchUseCase(ref.watch(gitHubRepositoryProvider)),
+  (ref) => GitHubSearchUseCaseImpl(ref.watch(gitHubRepositoryProvider)),
 );

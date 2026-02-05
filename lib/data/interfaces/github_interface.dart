@@ -11,9 +11,6 @@ abstract interface class GitHubRepository {
   /// Clear stored search history.
   Future<void> clearSearchHistory();
 
-  /// Save a history entry for a user search.
-  Future<void> saveSearchHistory(GitHubSearchQueryDataModel query);
-
   /// Get a GitHub user profile by login.
   Future<GitHubUserDataModel> getUser(String login);
 

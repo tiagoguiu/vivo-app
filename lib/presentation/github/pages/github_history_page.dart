@@ -34,10 +34,21 @@ class GitHubHistoryPage extends ConsumerWidget {
                     return ListTile(
                       title: Text(label),
                       subtitle: Text('$subtitle · $date'),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.refresh),
+                        tooltip: 'Repetir busca',
+                        onPressed: () {
+                          ref.read(gitHubSearchFiltersProvider.notifier).applyHistory(entry);
+                          ref.read(gitHubSearchProvider.notifier).search();
+                          AppRouter.go(context, RouterNames.githubSearchPage);
+                        },
+                      ),
                       onTap: () {
-                        ref.read(gitHubSearchFiltersProvider.notifier).applyHistory(entry);
-                        AppRouter.go(context, RouterNames.githubSearchPage);
+                        AppRouter.go(
+                          context,
+                          RouterNames.githubUserDetailsPage,
+                          pathParameters: {'login': entry.filters.username},
+                        );
                       },
                     );
                   },

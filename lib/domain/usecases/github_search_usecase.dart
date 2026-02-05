@@ -5,10 +5,12 @@ abstract interface class GitHubSearchUseCase {
   Future<List<GitHubUserEntity>> searchUsers(GitHubSearchFiltersEntity filters, {bool forceRefresh = false});
 
   Future<List<GitHubSearchHistoryEntity>> getSearchHistory();
-
+ 
   Future<void> clearSearchHistory();
 
-  Future<List<GitHubRepoCommitEntity>> getRecentRepoCommits(String username, {int count = 5});
+  Future<GitHubUserEntity> getUser(String login);
+
+  Future<List<GitHubRepoCommitEntity>> getRecentRepoCommits(String username, {int count = 12});
 }
 
 /// Default implementation for GitHub search use case.
@@ -34,7 +36,13 @@ class _GitHubSearchUseCase implements GitHubSearchUseCase {
   Future<void> clearSearchHistory() => _repository.clearSearchHistory();
 
   @override
-  Future<List<GitHubRepoCommitEntity>> getRecentRepoCommits(String username, {int count = 5}) async {
+  Future<GitHubUserEntity> getUser(String login) async {
+    final dataModel = await _repository.getUser(login);
+    return GitHubUserEntity.fromDataModel(dataModel);
+  }
+
+  @override
+  Future<List<GitHubRepoCommitEntity>> getRecentRepoCommits(String username, {int count = 12}) async {
     final dataModels = await _repository.getRecentRepoCommits(username, count: count);
     return dataModels.map(GitHubRepoCommitEntity.fromDataModel).toList();
   }

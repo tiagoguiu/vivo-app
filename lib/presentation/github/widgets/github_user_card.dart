@@ -200,8 +200,8 @@ class _CommitsChart extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
                   final name = items[index].repoName;
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8),
+                  return SizedBox(
+                    width: 32,
                     child: Text(name, style: theme.textTheme.labelSmall, overflow: TextOverflow.ellipsis),
                   );
                 },
